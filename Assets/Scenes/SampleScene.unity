@@ -1765,8 +1765,8 @@ MonoBehaviour:
   library:
   - {fileID: 7435068865841472180, guid: 8fc6f08da01d7d3478362e37a425214a, type: 3}
   - {fileID: 3856010045281421039, guid: 5b3a72c00d30f5e4ba99f244bc899d46, type: 3}
-  currentMode: 0
-  currentIndex: 0
+  green: {fileID: 2100000, guid: 426269fd85589014faab7ac9a141e3d4, type: 2}
+  red: {fileID: 2100000, guid: 3addf58e99079044da2381b3dbebc88e, type: 2}
 --- !u!4 &1599485125
 Transform:
   m_ObjectHideFlags: 0

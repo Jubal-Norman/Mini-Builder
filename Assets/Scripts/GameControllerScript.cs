@@ -17,8 +17,13 @@ public class GameControllerScript : MonoBehaviour
     public Camera camera;
     public GameObject floor;
     public GameObject[] library;
-    public MODE currentMode;
-    public uint currentIndex;
+    public Material green;
+    public Material red;
+
+
+    private MODE currentMode;
+    private uint currentIndex;
+    private GameObject currentPreview;
 
     private void Awake()
     {
@@ -42,9 +47,17 @@ public class GameControllerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(currentMode == MODE.PLACE)
+        {
+            UpdatePreview();
+        }
         if(Input.GetMouseButtonDown(0))
         {
             OnClick();
+        }
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            currentMode = MODE.NONE;
         }
     }
 
@@ -76,6 +89,41 @@ public class GameControllerScript : MonoBehaviour
                     break;
             }
         }
+    }
 
+    private void UpdatePreview()
+    {
+        RaycastHit hit;
+        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hit))
+        {
+            Transform objectHit = hit.transform;
+
+            currentPreview.transform.position = hit.point;
+            currentPreview.transform.GetChild(0).gameObject.GetComponent<MeshRenderer>().material = green;
+            //if(currentPreview.transform.GetChild(0).gameObject)
+        }
+    }
+
+    public void SetModeToPlace(uint index)
+    {
+        currentMode = MODE.PLACE;
+        currentIndex = index;
+        currentPreview = Instantiate(library[currentIndex], this.transform);
+    }
+
+    public void SetModeToNone()
+    {
+        currentMode = MODE.NONE;
+    }
+
+    public void SetModeToSelect()
+    {
+        currentMode = MODE.SELECT;
+    }
+
+    public MODE GetCurrentMode()
+    {
+        return currentMode;
     }
 }
