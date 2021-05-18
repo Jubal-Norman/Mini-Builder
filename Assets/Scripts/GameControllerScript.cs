@@ -59,7 +59,7 @@ public class GameControllerScript : MonoBehaviour
         }
         if(Input.GetKeyDown(KeyCode.Escape))
         {
-            currentMode = MODE.NONE;
+            SetModeToNone();
         }
     }
 
@@ -125,14 +125,16 @@ public class GameControllerScript : MonoBehaviour
     public void SetModeToNone()
     {
         currentMode = MODE.NONE;
-
+        Destroy(currentPreview.transform.GetChild(0).gameObject);
         Destroy(currentPreview);
+        currentPreview = null;
     }
 
     public void SetModeToSelect()
     {
         currentMode = MODE.SELECT;
         Destroy(currentPreview);
+        currentPreview = null;
     }
 
     public MODE GetCurrentMode()
