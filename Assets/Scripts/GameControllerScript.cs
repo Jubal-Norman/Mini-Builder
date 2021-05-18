@@ -14,9 +14,10 @@ public class GameControllerScript : MonoBehaviour
     public static GameControllerScript Instance { get { return instance; } }
     public static GameControllerScript instance;
 
-    public Camera camera;
+    public new Camera camera;
     public GameObject floor;
     public GameObject[] library;
+    public GameObject[] libraryPreview;
     public Material green;
     public Material red;
 
@@ -24,6 +25,7 @@ public class GameControllerScript : MonoBehaviour
     private MODE currentMode;
     private uint currentIndex;
     private GameObject currentPreview;
+    private bool canPlace;
 
     private void Awake()
     {
@@ -72,7 +74,7 @@ public class GameControllerScript : MonoBehaviour
             Transform objectHit = hit.transform;
 
 
-            print(hit.point);
+            //print(hit.point);
 
             switch (currentMode)
             {
@@ -82,7 +84,7 @@ public class GameControllerScript : MonoBehaviour
                     print(objectHit.name + " selected");
                     break;
                 case MODE.PLACE:
-                    if (objectHit.gameObject.Equals(floor))
+                    if (objectHit.gameObject.Equals(floor) && canPlace)
                     {
                         Instantiate(library[currentIndex], hit.point, Quaternion.identity);
                     }
@@ -100,8 +102,16 @@ public class GameControllerScript : MonoBehaviour
             Transform objectHit = hit.transform;
 
             currentPreview.transform.position = hit.point;
-            currentPreview.transform.GetChild(0).gameObject.GetComponent<MeshRenderer>().material = green;
-            //if(currentPreview.transform.GetChild(0).gameObject)
+            if(currentPreview.GetComponent<PreviewScript>().isOverlapping)
+            {
+                currentPreview.transform.GetChild(0).gameObject.GetComponent<MeshRenderer>().material = red;
+                canPlace = false;
+            }
+            else
+            {
+                currentPreview.transform.GetChild(0).gameObject.GetComponent<MeshRenderer>().material = green;
+                canPlace = true;
+            }
         }
     }
 
@@ -109,17 +119,20 @@ public class GameControllerScript : MonoBehaviour
     {
         currentMode = MODE.PLACE;
         currentIndex = index;
-        currentPreview = Instantiate(library[currentIndex], this.transform);
+        currentPreview = Instantiate(libraryPreview[currentIndex]);
     }
 
     public void SetModeToNone()
     {
         currentMode = MODE.NONE;
+
+        Destroy(currentPreview);
     }
 
     public void SetModeToSelect()
     {
         currentMode = MODE.SELECT;
+        Destroy(currentPreview);
     }
 
     public MODE GetCurrentMode()
