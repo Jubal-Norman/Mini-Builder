@@ -56,18 +56,10 @@ public class GameControllerScript : MonoBehaviour
         }
         else if (currentMode == MODE.SELECT && currentSelected != null)
         {
-            if (Input.GetKey(KeyCode.E))
-            {
-                currentSelected.transform.Rotate(new Vector3(0, 0.5f, 0));
-            }
-            else if (Input.GetKey(KeyCode.Q))
-            {
-                currentSelected.transform.Rotate(new Vector3(0, -0.5f, 0));
-            }
             UpdateObject(currentSelected);
         }
 
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
             OnClick();
         }
@@ -77,6 +69,25 @@ public class GameControllerScript : MonoBehaviour
         }
     }
 
+    private void UpdateTransform(GameObject obj)
+    {
+        if (Input.GetKey(KeyCode.E))
+        {
+            obj.transform.Rotate(new Vector3(0, 0.5f, 0));
+        }
+        else if (Input.GetKey(KeyCode.Q))
+        {
+            obj.transform.Rotate(new Vector3(0, -0.5f, 0));
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            obj.transform.localScale += new Vector3(0.01f, 0.01f, 0.01f);
+        }
+        else if (Input.GetKey(KeyCode.A))
+        {
+            obj.transform.localScale -= new Vector3(0.01f, 0.01f, 0.01f);
+        }
+    }
 
     void OnClick()
     {
@@ -113,7 +124,10 @@ public class GameControllerScript : MonoBehaviour
                 case MODE.PLACE:
                     if (canPlace)
                     {
-                        Instantiate(library[currentIndex], hit.point + 0.6f * Vector3.up, Quaternion.identity);
+                        Vector3 min = currentPreview.GetComponent<MeshRenderer>().bounds.min;
+                        GameObject newObject = Instantiate(library[currentIndex], hit.point + new Vector3(0, currentPreview.transform.position.y - min.y + 0.02f, 0), Quaternion.identity);
+                        newObject.transform.localScale = currentPreview.transform.localScale;
+                        newObject.transform.rotation = currentPreview.transform.rotation;
                     }
                     break;
             }
@@ -127,9 +141,9 @@ public class GameControllerScript : MonoBehaviour
         if (Physics.Raycast(ray, out hit))
         {
             Transform objectHit = hit.transform;
-
-            obj.transform.position = hit.point + 0.6f * Vector3.up;
-            if(obj.GetComponent<PreviewScript>().isOverlapping)
+            Vector3 min = obj.GetComponent<MeshRenderer>().bounds.min;
+            obj.transform.position = hit.point + new Vector3(0, currentPreview.transform.position.y - min.y + 0.02f, 0);// 0.2f * Vector3.up;
+            if (obj.GetComponent<PreviewScript>().isOverlapping)
             {
                 obj.GetComponent<MeshRenderer>().material = red;
                 canPlace = false;
@@ -140,6 +154,7 @@ public class GameControllerScript : MonoBehaviour
                 canPlace = true;
             }
         }
+        UpdateTransform(obj);
     }
 
     public void SetModeToPlace(uint index)
