@@ -50,12 +50,20 @@ public class GameControllerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(currentMode == MODE.PLACE)
+        if (currentMode == MODE.PLACE)
         {
             UpdateObject(currentPreview);
         }
         else if (currentMode == MODE.SELECT && currentSelected != null)
         {
+            if (Input.GetKey(KeyCode.E))
+            {
+                currentSelected.transform.Rotate(new Vector3(0, 0.5f, 0));
+            }
+            else if (Input.GetKey(KeyCode.Q))
+            {
+                currentSelected.transform.Rotate(new Vector3(0, -0.5f, 0));
+            }
             UpdateObject(currentSelected);
         }
 
@@ -91,12 +99,14 @@ public class GameControllerScript : MonoBehaviour
                         currentSelectedMaterial = currentSelected.GetComponent<MeshRenderer>().material;
                         currentSelected.layer = 2;
                         currentSelected.GetComponent<Collider>().isTrigger = true;
+                        currentSelected.GetComponent<Rigidbody>().useGravity = false;
                     }
                     else if (currentSelected != null && canPlace)
                     {
                         currentSelected.GetComponent<MeshRenderer>().material = currentSelectedMaterial;
                         currentSelected.layer = 0;
                         currentSelected.GetComponent<Collider>().isTrigger = false;
+                        currentSelected.GetComponent<Rigidbody>().useGravity = true;
                         currentSelected = null;
                     }
                     break;
