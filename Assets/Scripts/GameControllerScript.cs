@@ -17,7 +17,6 @@ public class GameControllerScript : MonoBehaviour
     public new Camera camera;
     public GameObject floor;
     public GameObject[] library;
-    public GameObject[] libraryPreview;
     public Material green;
     public Material red;
 
@@ -25,6 +24,8 @@ public class GameControllerScript : MonoBehaviour
     private MODE currentMode;
     private uint currentIndex;
     private GameObject currentPreview;
+    private GameObject currentSelected;
+    private Material currentSelectedMaterial;
     private bool canPlace;
 
     private void Awake()
@@ -51,8 +52,13 @@ public class GameControllerScript : MonoBehaviour
     {
         if(currentMode == MODE.PLACE)
         {
-            UpdatePreview();
+            UpdateObject(currentPreview);
         }
+        else if (currentMode == MODE.SELECT && currentSelected != null)
+        {
+            UpdateObject(currentSelected);
+        }
+
         if(Input.GetMouseButtonDown(0))
         {
             OnClick();
@@ -73,27 +79,38 @@ public class GameControllerScript : MonoBehaviour
         {
             Transform objectHit = hit.transform;
 
-
-            //print(hit.point);
-
             switch (currentMode)
             {
                 case MODE.NONE:
                     break;
                 case MODE.SELECT:
-                    print(objectHit.name + " selected");
+                    if (objectHit.gameObject.layer != 3 && currentSelected == null)
+                    {
+                        print(objectHit.name + " selected");
+                        currentSelected = objectHit.gameObject;
+                        currentSelectedMaterial = currentSelected.GetComponent<MeshRenderer>().material;
+                        currentSelected.layer = 2;
+                        currentSelected.GetComponent<Collider>().isTrigger = true;
+                    }
+                    else if (currentSelected != null && canPlace)
+                    {
+                        currentSelected.GetComponent<MeshRenderer>().material = currentSelectedMaterial;
+                        currentSelected.layer = 0;
+                        currentSelected.GetComponent<Collider>().isTrigger = false;
+                        currentSelected = null;
+                    }
                     break;
                 case MODE.PLACE:
-                    if (objectHit.gameObject.Equals(floor) && canPlace)
+                    if (canPlace)
                     {
-                        Instantiate(library[currentIndex], hit.point, Quaternion.identity);
+                        Instantiate(library[currentIndex], hit.point + 0.6f * Vector3.up, Quaternion.identity);
                     }
                     break;
             }
         }
     }
 
-    private void UpdatePreview()
+    private void UpdateObject(GameObject obj)
     {
         RaycastHit hit;
         Ray ray = camera.ScreenPointToRay(Input.mousePosition);
@@ -101,15 +118,15 @@ public class GameControllerScript : MonoBehaviour
         {
             Transform objectHit = hit.transform;
 
-            currentPreview.transform.position = hit.point;
-            if(currentPreview.GetComponent<PreviewScript>().isOverlapping)
+            obj.transform.position = hit.point + 0.6f * Vector3.up;
+            if(obj.GetComponent<PreviewScript>().isOverlapping)
             {
-                currentPreview.transform.GetChild(0).gameObject.GetComponent<MeshRenderer>().material = red;
+                obj.GetComponent<MeshRenderer>().material = red;
                 canPlace = false;
             }
             else
             {
-                currentPreview.transform.GetChild(0).gameObject.GetComponent<MeshRenderer>().material = green;
+                obj.GetComponent<MeshRenderer>().material = green;
                 canPlace = true;
             }
         }
@@ -119,7 +136,9 @@ public class GameControllerScript : MonoBehaviour
     {
         currentMode = MODE.PLACE;
         currentIndex = index;
-        currentPreview = Instantiate(libraryPreview[currentIndex]);
+        currentPreview = Instantiate(library[currentIndex]);
+        currentPreview.layer = 2;
+        currentPreview.GetComponent<Collider>().isTrigger = true;
     }
 
     public void SetModeToNone()
