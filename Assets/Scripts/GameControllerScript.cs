@@ -57,6 +57,12 @@ public class GameControllerScript : MonoBehaviour
         else if (currentMode == MODE.SELECT && currentSelected != null)
         {
             UpdateObject(currentSelected);
+
+            if(Input.GetKeyDown(KeyCode.Delete))
+            {
+                Destroy(currentSelected);
+                currentSelected = null;
+            }    
         }
 
         if (Input.GetMouseButtonDown(0))
