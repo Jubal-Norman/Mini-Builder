@@ -4,11 +4,40 @@ using UnityEngine;
 
 public class UIControllerScript : MonoBehaviour
 {
+    public static UIControllerScript Instance { get { return instance; } }
+    public static UIControllerScript instance;
+
     [SerializeField]
     public GameObject libraryMenuUI;
 
+    [SerializeField]
+    public GameObject tooltipUI;
+
     private MODE previousMode;
     private uint currentIndex;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else if (instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        DontDestroyOnLoad(gameObject);
+    }
+
+    public void ShowTooltip()
+    {
+        tooltipUI.SetActive(true);
+    }
+
+    public void HideTooltip()
+    {
+        tooltipUI.SetActive(false);
+    }
 
     public void ShowLibrary()
     {

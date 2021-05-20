@@ -109,14 +109,20 @@ public class GameControllerScript : MonoBehaviour
                         currentSelected = objectHit.gameObject;
                         currentSelectedMaterial = currentSelected.GetComponent<MeshRenderer>().material;
                         currentSelected.layer = 2;
-                        currentSelected.GetComponent<Collider>().isTrigger = true;
+                        foreach (Collider collider in currentSelected.GetComponents<Collider>())
+                        {
+                            collider.isTrigger = true;
+                        }
                         currentSelected.GetComponent<Rigidbody>().useGravity = false;
                     }
                     else if (currentSelected != null && canPlace)
                     {
                         currentSelected.GetComponent<MeshRenderer>().material = currentSelectedMaterial;
                         currentSelected.layer = 0;
-                        currentSelected.GetComponent<Collider>().isTrigger = false;
+                        foreach (Collider collider in currentSelected.GetComponents<Collider>())
+                        {
+                            collider.isTrigger = false;
+                        }
                         currentSelected.GetComponent<Rigidbody>().useGravity = true;
                         currentSelected = null;
                     }
@@ -142,7 +148,7 @@ public class GameControllerScript : MonoBehaviour
         {
             Transform objectHit = hit.transform;
             Vector3 min = obj.GetComponent<MeshRenderer>().bounds.min;
-            obj.transform.position = hit.point + new Vector3(0, currentPreview.transform.position.y - min.y + 0.02f, 0);// 0.2f * Vector3.up;
+            obj.transform.position = hit.point + new Vector3(0, obj.transform.position.y - min.y + 0.02f, 0);// 0.2f * Vector3.up;
             if (obj.GetComponent<PreviewScript>().isOverlapping)
             {
                 obj.GetComponent<MeshRenderer>().material = red;
@@ -160,15 +166,20 @@ public class GameControllerScript : MonoBehaviour
     public void SetModeToPlace(uint index)
     {
         currentMode = MODE.PLACE;
+        UIControllerScript.Instance.HideTooltip();
         currentIndex = index;
         currentPreview = Instantiate(library[currentIndex]);
         currentPreview.layer = 2;
-        currentPreview.GetComponent<Collider>().isTrigger = true;
+        foreach(Collider collider in currentPreview.GetComponents<Collider>())
+        {
+            collider.isTrigger = true;
+        }
     }
 
     public void SetModeToNone()
     {
         currentMode = MODE.NONE;
+        UIControllerScript.Instance.HideTooltip();
         if (currentPreview != null)
         {
             Destroy(currentPreview);
@@ -179,6 +190,7 @@ public class GameControllerScript : MonoBehaviour
     public void SetModeToSelect()
     {
         currentMode = MODE.SELECT;
+        UIControllerScript.Instance.ShowTooltip();
         if (currentPreview != null)
         {
             Destroy(currentPreview);
